@@ -65,4 +65,10 @@ with gr.Blocks(title="ASL Sign Classifier") as demo:
     button.click(predict_features, inputs=features, outputs=output)
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    import os
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 10000)),
+        share=False
+    )
+    
