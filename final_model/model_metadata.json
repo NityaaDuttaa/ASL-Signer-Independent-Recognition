@@ -1,0 +1,9 @@
+{
+  "model_type": "LSTM",
+  "num_classes": 100,
+  "sequence_length": 8,
+  "features_per_frame": 258,
+  "test_accuracy": 0.2558,
+  "test_macro_f1": 0.2443,
+  "test_top5_accuracy": 0.6056
+}
