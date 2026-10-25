@@ -344,4 +344,23 @@ with gr.Blocks(
             "(8 frames × 258 features)."
         )
 
-        feature_text
+            feature_text = gr.Textbox(
+            label="Feature values",
+            lines=5,
+            placeholder="Enter 2064 numeric values..."
+        )
+
+            feature_button = gr.Button("Predict from features")
+
+            feature_output = gr.Label(
+            label="Top 5 predictions",
+            num_top_classes=5
+        )
+
+        feature_button.click(
+            predict_features,
+            inputs=feature_text,
+            outputs=feature_output
+        )
+
+demo.queue(default_concurrency_limit=1).launch()
