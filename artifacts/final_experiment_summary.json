@@ -1,0 +1,17 @@
+{
+  "project": "Signer-Independent ASL Sign Recognition",
+  "task": "100-class landmark-based gloss classification",
+  "recovered_records": 3150,
+  "expected_records": 3218,
+  "missing_records": 68,
+  "baseline_test_accuracy": 0.1312,
+  "baseline_macro_f1": 0.1088,
+  "hand_only_ablation_test_accuracy": 0.1423,
+  "hand_only_ablation_macro_f1": 0.1091,
+  "pose_only_test_accuracy": 0.0372,
+  "pose_only_macro_f1": 0.0067,
+  "combined_ablation_test_accuracy": 0.0828,
+  "combined_ablation_macro_f1": 0.0474,
+  "hand_only_checkpoint_saved": true,
+  "missing_artifacts": []
+}

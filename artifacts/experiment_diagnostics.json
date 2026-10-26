@@ -1,0 +1,19 @@
+{
+  "feature_records": 3150,
+  "frames_per_video": 8,
+  "features_per_frame": 258,
+  "hand_group_1_active_frames": 9579,
+  "hand_group_2_active_frames": 3668,
+  "pose_active_frames": 25146,
+  "hand_group_1_detection_rate": 0.38011904761904763,
+  "hand_group_2_detection_rate": 0.14555555555555555,
+  "pose_detection_rate": 0.9978571428571429,
+  "test_accuracy": 0.1312,
+  "test_macro_f1": 0.1088,
+  "notes": [
+    "Recovered subset contains 3150 feature records.",
+    "Original source videos and official split CSVs were not found in checked locations.",
+    "Hand group identities have not been verified from the extraction code.",
+    "Test metrics are baseline results, not state-of-the-art claims."
+  ]
+}

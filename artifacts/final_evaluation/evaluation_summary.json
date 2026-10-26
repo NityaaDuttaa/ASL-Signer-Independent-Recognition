@@ -1,0 +1,11 @@
+{
+  "model": "LSTM",
+  "number_of_classes": 100,
+  "test_samples": 1075,
+  "test_accuracy": 0.2558139534883721,
+  "test_macro_f1": 0.24427275688113148,
+  "test_weighted_f1": 0.23998646522769387,
+  "test_top5_accuracy": 0.6055813953488373,
+  "validation_accuracy": 0.326996,
+  "validation_macro_f1": 0.311823
+}
