@@ -338,17 +338,19 @@ with gr.Blocks(
             outputs=[prediction, top_predictions]
         )
 
-    with gr.Tab("Advanced: pre-extracted features"):
-        gr.Markdown(
-            "Debugging only: enter 2,064 numbers "
-            "(8 frames × 258 features)."
-        )
+        
+with gr.Tab("Advanced: pre-extracted features"):
+    gr.Markdown(
+        "Debugging only: enter 2,064 numbers "
+        "(8 frames × 258 features)."
+    )
 
-            feature_text = gr.Textbox(
-            label="Feature values",
-            lines=5,
-            placeholder="Enter 2064 numeric values..."
-        )
+    feature_text = gr.Textbox(
+        label="Feature values",
+        lines=5,
+        placeholder="Enter 2064 numeric values..."
+    )
+
 
             feature_button = gr.Button("Predict from features")
 
