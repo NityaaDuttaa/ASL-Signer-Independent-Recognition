@@ -1,6 +1,4 @@
-
 import os
-import tempfile
 from pathlib import Path
 
 import cv2
@@ -8,11 +6,13 @@ import gradio as gr
 import mediapipe as mp
 import numpy as np
 import tensorflow as tf
-from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+from mediapipe.tasks import python
+
 
 BASE = Path(__file__).resolve().parent
 MODEL_DIR = BASE / "final_model"
+
 POSE_TASK = MODEL_DIR / "pose_landmarker.task"
 HAND_TASK = MODEL_DIR / "hand_landmarker.task"
 
@@ -23,6 +23,7 @@ MAX_WIDTH = 640
 model = tf.keras.models.load_model(
     MODEL_DIR / "asl_signer_independent_lstm.keras"
 )
+
 labels = np.load(
     MODEL_DIR / "label_classes.npy",
     allow_pickle=False
@@ -64,7 +65,10 @@ def create_landmarkers():
 
 
 def extract_frame_features(
-    rgb_frame, timestamp_ms, pose_detector, hand_detector
+    rgb_frame,
+    timestamp_ms,
+    pose_detector,
+    hand_detector
 ):
     image = mp.Image(
         image_format=mp.ImageFormat.SRGB,
@@ -74,6 +78,7 @@ def extract_frame_features(
     pose_result = pose_detector.detect_for_video(
         image, timestamp_ms
     )
+
     hand_result = hand_detector.detect_for_video(
         image, timestamp_ms
     )
@@ -82,10 +87,15 @@ def extract_frame_features(
 
     if pose_result.pose_landmarks:
         values = []
+
         for point in pose_result.pose_landmarks[0]:
             values.extend([
-                point.x, point.y, point.z, point.visibility
+                point.x,
+                point.y,
+                point.z,
+                point.visibility
             ])
+
         pose_values = np.asarray(values, dtype=np.float32)
 
     hand_values = {
@@ -102,11 +112,17 @@ def extract_frame_features(
 
             if side in hand_values:
                 values = []
+
                 for point in landmarks:
-                    values.extend([point.x, point.y, point.z])
+                    values.extend([
+                        point.x,
+                        point.y,
+                        point.z
+                    ])
 
                 hand_values[side] = np.asarray(
-                    values, dtype=np.float32
+                    values,
+                    dtype=np.float32
                 )
 
     return np.concatenate([
@@ -133,7 +149,9 @@ def extract_video_features(video_path):
         raise ValueError("No readable frames found.")
 
     frame_indices = np.linspace(
-        0, frame_count - 1, SEQUENCE_LENGTH
+        0,
+        frame_count - 1,
+        SEQUENCE_LENGTH
     ).astype(int)
 
     pose_detector = None
@@ -144,12 +162,19 @@ def extract_video_features(video_path):
         pose_detector, hand_detector = create_landmarkers()
 
         for index, frame_index in enumerate(frame_indices):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_index))
+            cap.set(
+                cv2.CAP_PROP_POS_FRAMES,
+                int(frame_index)
+            )
+
             ok, frame = cap.read()
 
             if not ok:
                 features.append(
-                    np.zeros(FEATURES_PER_FRAME, dtype=np.float32)
+                    np.zeros(
+                        FEATURES_PER_FRAME,
+                        dtype=np.float32
+                    )
                 )
                 continue
 
@@ -157,19 +182,25 @@ def extract_video_features(video_path):
 
             if width > MAX_WIDTH:
                 new_height = max(
-                    1, int(height * MAX_WIDTH / width)
+                    1,
+                    int(height * MAX_WIDTH / width)
                 )
+
                 frame = cv2.resize(
                     frame,
                     (MAX_WIDTH, new_height),
                     interpolation=cv2.INTER_AREA
                 )
 
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            rgb = cv2.cvtColor(
+                frame,
+                cv2.COLOR_BGR2RGB
+            )
 
             timestamp_ms = (
                 int(frame_index / fps * 1000)
-                if fps > 0 else index * 100
+                if fps > 0
+                else index * 100
             )
 
             features.append(
@@ -192,7 +223,10 @@ def extract_video_features(video_path):
 
     sequence = np.stack(features).astype(np.float32)
 
-    if sequence.shape != (SEQUENCE_LENGTH, FEATURES_PER_FRAME):
+    if sequence.shape != (
+        SEQUENCE_LENGTH,
+        FEATURES_PER_FRAME
+    ):
         raise ValueError(
             f"Unexpected feature shape: {sequence.shape}"
         )
@@ -201,12 +235,21 @@ def extract_video_features(video_path):
 
 
 def predict_sequence(sequence):
-    X = np.asarray(sequence, dtype=np.float32).reshape(
-        1, SEQUENCE_LENGTH, FEATURES_PER_FRAME
+    X = np.asarray(
+        sequence,
+        dtype=np.float32
+    ).reshape(
+        1,
+        SEQUENCE_LENGTH,
+        FEATURES_PER_FRAME
     )
 
     X = (X - scaler_mean) / scaler_scale
-    probabilities = model.predict(X, verbose=0)[0]
+
+    probabilities = model.predict(
+        X,
+        verbose=0
+    )[0]
 
     top_indices = np.argsort(probabilities)[-5:][::-1]
 
@@ -225,7 +268,10 @@ def predict_sequence(sequence):
 def predict_video(video_path):
     try:
         sequence = extract_video_features(video_path)
-        best_label, best_score, results = predict_sequence(sequence)
+
+        best_label, best_score, results = predict_sequence(
+            sequence
+        )
 
         message = (
             f"Predicted sign: {best_label}\n"
@@ -258,10 +304,15 @@ def predict_features(text):
             }
 
         if not np.isfinite(values).all():
-            return {"Error": "Input contains invalid numeric values."}
+            return {
+                "Error": "Input contains invalid numeric values."
+            }
 
         _, _, results = predict_sequence(
-            values.reshape(SEQUENCE_LENGTH, FEATURES_PER_FRAME)
+            values.reshape(
+                SEQUENCE_LENGTH,
+                FEATURES_PER_FRAME
+            )
         )
 
         return results
@@ -275,21 +326,25 @@ custom_css = """
     max-width: 1100px !important;
     margin: auto !important;
 }
+
 .hero {
     padding: 24px;
     border-radius: 18px;
     background: linear-gradient(120deg, #111827, #243b53);
     color: white;
 }
+
 .hero h1 {
     margin-bottom: 8px;
     font-size: 2rem;
 }
+
 .hero p {
     opacity: .88;
     margin-bottom: 0;
 }
 """
+
 
 with gr.Blocks(
     title="ASL Signer Independent Recognition",
@@ -310,6 +365,7 @@ with gr.Blocks(
     )
 
     with gr.Tab("Recognize a sign from video"):
+
         video = gr.Video(
             label="Upload ASL video",
             sources=["upload"],
@@ -338,11 +394,11 @@ with gr.Blocks(
             outputs=[prediction, top_predictions]
         )
 
-        
-        with gr.Tab("Advanced: pre-extracted features"):
-            gr.Markdown(
-                 "Debugging only: enter 2,064 numbers "
-                 "(8 frames × 258 features)."
+    with gr.Tab("Advanced: pre-extracted features"):
+
+        gr.Markdown(
+            "Debugging only: enter 2,064 numbers "
+            "(8 frames × 258 features)."
         )
 
         feature_text = gr.Textbox(
@@ -351,10 +407,11 @@ with gr.Blocks(
             placeholder="Enter 2064 numeric values..."
         )
 
+        feature_button = gr.Button(
+            "Predict from features"
+        )
 
-        feature_button = gr.Button("Predict from features")
-
-            feature_output = gr.Label(
+        feature_output = gr.Label(
             label="Top 5 predictions",
             num_top_classes=5
         )
@@ -364,5 +421,6 @@ with gr.Blocks(
             inputs=feature_text,
             outputs=feature_output
         )
+
 
 demo.queue(default_concurrency_limit=1).launch()
